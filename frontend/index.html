@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSense - AI Plant Disease Detector</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-decoration"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <div class="logo">🌱</div>
+                <div>
+                    <h1>AgroSense</h1>
+                    <p class="tagline">AI-Powered Plant Disease Detection & Farm Advisory</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Disease Detection Card -->
+            <div class="card disease-card">
+                <div class="card-header">
+                    <span class="card-icon">🔬</span>
+                    <h2>Disease Detection</h2>
+                </div>
+                <p class="card-description">Upload a plant leaf image for instant AI-powered disease diagnosis</p>
+                
+                <div class="upload-zone" id="uploadZone">
+                   <input type="file" id="imageInput" name="image" accept="image/*" hidden>
+
+                    <div class="upload-content">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">Click or drag image here</p>
+                        <p class="upload-hint">Supports JPG, PNG • Max 10MB</p>
+                    </div>
+                </div>
+
+                <div id="imagePreview" class="image-preview hidden">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button class="btn-remove" id="removeImg">✕</button>
+                </div>
+
+                <button class="btn-primary" id="detectBtn" disabled>
+                    <span class="btn-text">Detect Disease</span>
+                    <span class="btn-loader hidden">⏳ Analyzing...</span>
+                </button>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="results hidden">
+                    <div class="result-header">
+                        <h3>Detection Results</h3>
+                        <span class="result-time" id="resultTime"></span>
+                    </div>
+                    
+                    <div class="disease-result">
+                        <div class="disease-name-section">
+                            <span class="severity-badge" id="severityBadge">HIGH</span>
+                            <h4 id="diseaseName">Tomato Early Blight</h4>
+                        </div>
+                        <div class="confidence-meter">
+                            <div class="confidence-label">Confidence</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                            </div>
+                            <div class="confidence-value" id="confidenceValue">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="treatment-section">
+                        <h4>💊 Recommended Treatment</h4>
+                        <p id="treatmentText"></p>
+                        
+                        <h4>⚠ Causes</h4>
+                        <p id="causeText"></p>
+
+                        <h4>🧬 Symptoms</h4>
+                        <p id="symptomsText"></p>
+
+                        <h4>🛡️ Prevention</h4>
+                        <p id="preventionText"></p>
+
+                        <h4>🧪 Chemical Treatment</h4>
+                        <p id="chemicalText"></p>
+                        
+                        <h4>🌿 Organic Alternative</h4>
+                        <p id="organicText"></p>
+                    </div>
+
+                    <div class="visualization-section">
+                        <h4>🔍 AI Visualization (Grad-CAM)</h4>
+                        <div class="heatmap-container">
+                            <img id="heatmapImg" src="" alt="Grad-CAM Heatmap">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Card -->
+            <div class="card weather-card">
+                <div class="card-header">
+                    <span class="card-icon">🌤️</span>
+                    <h2>Weather Advisory</h2>
+                </div>
+                <p class="card-description">Real-time weather data and farming recommendations</p>
+                
+                <div class="location-input">
+                    <input type="text" id="locationInput" placeholder="Enter location (e.g., Bangalore)" value="Bangalore">
+                    <button class="btn-secondary" id="weatherBtn">Get Weather</button>
+                </div>
+
+                <div id="weatherData" class="weather-data hidden">
+                    <div class="weather-current">
+                        <div class="temp-display">
+                            <span class="temp-value" id="tempValue">28</span>
+                            <span class="temp-unit">°C</span>
+                        </div>
+                        <div class="weather-info">
+                            <p class="weather-condition" id="weatherCondition">Partly Cloudy</p>
+                            <p class="weather-location" id="weatherLocation">Bangalore, Karnataka</p>
+                        </div>
+                    </div>
+
+                    <div class="weather-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">💧</span>
+                            <span class="stat-label">Humidity</span>
+                            <span class="stat-value" id="humidity">65%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">💨</span>
+                            <span class="stat-label">Wind</span>
+                            <span class="stat-value" id="wind">12 km/h</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">☀️</span>
+                            <span class="stat-label">UV Index</span>
+                            <span class="stat-value" id="uvIndex">7</span>
+                        </div>
+                    </div>
+
+                    <div class="agricultural-advisory">
+                        <h4>🌾 Agricultural Advisory</h4>
+                        <div class="advisory-item">
+                            <strong>Irrigation:</strong>
+                            <span id="irrigationAdv">Moderate irrigation recommended</span>
+                        </div>
+                        <div class="advisory-item">
+                            <strong>Disease Risk:</strong>
+                            <span id="diseaseRisk">Monitor for fungal diseases</span>
+                        </div>
+                        <div class="advisory-item">
+                            <strong>Spraying:</strong>
+                            <span id="sprayingAdv">Good conditions for application</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= MARKET PRICES CARD ================= -->
+<div class="card market-card">
+    <div class="card-header">
+        <span class="card-icon">💰</span>
+        <h2>Market Intelligence</h2>
+    </div>
+
+    <p class="card-description">
+        Live mandi prices from across India
+    </p>
+
+    <!-- Crop selector -->
+    <div class="crop-selector">
+        <select id="cropSelect" class="crop-select">
+            <option value="tomato">Tomato</option>
+            <option value="potato">Potato</option>
+            <option value="onion">Onion</option>
+            <option value="chili">Chilli</option>
+            <option value="rice">Rice</option>
+        </select>
+
+        <button class="btn-secondary" id="marketBtn">
+            Get Prices
+        </button>
+    </div>
+
+    <!-- DATA CARD -->
+    <div id="marketData" class="market-data hidden">
+
+        <!-- Current price -->
+        <div class="price-display">
+            <div class="current-price">
+                <span class="price-label">Current Price</span>
+                <span class="price-value">
+                    ₹<span id="currentPrice">--</span>
+                </span>
+                <span class="price-unit">/quintal</span>
+            </div>
+
+            <div class="price-trend">
+                <span class="trend-badge trend-up" id="trendBadge">
+                    ↑ <span id="trendPercent">--</span>%
+                </span>
+            </div>
+        </div>
+
+        <!-- Mandi Name -->
+        <p id="mandiName" style="margin-top:6px;font-weight:600;color:#555">
+            Mandi: --
+        </p>
+
+        <!-- Price range -->
+        <div class="price-range">
+            <div class="range-item">
+                <span>Min</span>
+                <strong>₹<span id="minPrice">--</span></strong>
+            </div>
+
+            <div class="range-item">
+                <span>Avg</span>
+                <strong>₹<span id="avgPrice">--</span></strong>
+            </div>
+
+            <div class="range-item">
+                <span>Max</span>
+                <strong>₹<span id="maxPrice">--</span></strong>
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="market-recommendation">
+            <div class="recommendation-header">
+                <span class="rec-badge" id="actionBadge">--</span>
+                <h4>Recommendation</h4>
+            </div>
+            <p id="recommendationText">Loading...</p>
+        </div>
+
+        <!-- Top markets -->
+        <div class="top-markets">
+            <h4>🏪 Top Mandis</h4>
+            <div class="market-list" id="marketList">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- ================= END MARKET CARD ================= -->
+
+            <!-- AI Chat Assistant Card -->
+            <div class="card chat-card">
+                <div class="card-header">
+                    <span class="card-icon">🤖</span>
+                    <h2>AI Farm Assistant</h2>
+                </div>
+                <p class="card-description">Ask me anything about farming, diseases, or crop management</p>
+                
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-welcome">
+                        <div class="welcome-icon">👋</div>
+                        <h3>Hello, Farmer!</h3>
+                        <p>I'm your AI farming assistant. Ask me anything!</p>
+                        <div class="suggestion-chips">
+                            <button class="chip" data-query="How to prevent fungal diseases?">Prevent Diseases</button>
+                            <button class="chip" data-query="When is the best time to sell crops?">Market Timing</button>
+                            <button class="chip" data-query="What are organic pest control methods?">Organic Methods</button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Type your question here..." class="chat-input">
+                    <button class="btn-send" id="sendBtn">
+                        <span>Send</span>
+                        <span class="send-icon">📤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>AgroSense</h3>
+                    <p>Empowering farmers with AI-driven insights for better yields and sustainable farming.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Team</h4>
+                    <p>Mahantesh M A (22BBTCS167)</p>
+                    <p>Mohammad Roshan M Nadaf (22BBTCS176)</p>
+                    <p>Mallik Rihan (22BBTCS169)</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Guide</h4>
+                    <p>Prof. Priyanka M</p>
+                    <p>Assistant Professor</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AgroSense. Capstone Project.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
