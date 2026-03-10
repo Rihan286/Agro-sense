@@ -9,6 +9,17 @@ import warnings
 warnings.filterwarnings('ignore', message='.*_batch_norm.*')
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+# Monkey patch to bypass 'groups' issue in Keras 3 with older models
+from tensorflow.keras.layers import DepthwiseConv2D
+_original_depthwise_init = DepthwiseConv2D.__init__
+
+def _new_depthwise_init(self, *args, **kwargs):
+    if 'groups' in kwargs:
+        kwargs.pop('groups')
+    _original_depthwise_init(self, *args, **kwargs)
+
+DepthwiseConv2D.__init__ = _new_depthwise_init
+
 # Path to trained model
 MODEL_PATH = os.path.join(
     os.path.dirname(__file__),

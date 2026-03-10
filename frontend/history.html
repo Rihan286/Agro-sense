@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSense - Detection History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Sidebar & Layout Styles */
+        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
+        
+        .sidebar { 
+            width: 250px; 
+            background: #1B4716; 
+            color: white; 
+            height: 100vh; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            padding-top: 20px; 
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            transform: translateX(-250px);
+        }
+        .sidebar.active { transform: translateX(0); }
+        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: bold; }
+        .sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
+        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
+        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; font-family: 'Poppins', sans-serif; }
+        
+        .main-content { 
+            margin-left: 0; 
+            padding: 30px; 
+            flex-grow: 1;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+        .main-content.expanded { margin-left: 250px; }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #ddd; 
+            padding-bottom: 15px; 
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .hamburger { font-size: 24px; cursor: pointer; color: #1B4716; background: none; border: none; padding: 5px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
+        .hamburger:hover { color: #00A30E; }
+        .header h1 { color: #333; margin: 0; font-size: 24px; font-family: 'Poppins', sans-serif; }
+        .user-info { font-weight: 500; color: #555; font-family: 'Poppins', sans-serif; }
+
+        /* Feature specific wrapper */
+        .feature-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .history-container { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #1B4716; font-weight: 600; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        tr:hover { background-color: #ADFFC7; }
+        .confidence-high { color: #1B4716; font-weight: 600; }
+        .confidence-med { color: #ff9800; font-weight: 600; }
+        .confidence-low { color: #d32f2f; font-weight: 600; }
+        .loading { text-align: center; padding: 20px; color: #666; font-size: 1.1em; }
+        .error { color: #d32f2f; text-align: center; padding: 15px; background: #ffebee; border-radius: 8px; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-250px); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .user-info { align-self: flex-end; }
+            .history-container { padding: 15px; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <h2>AgroSense</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="detect.html">Detect Disease</a></li>
+            <li><a href="weather.html">Weather</a></li>
+            <li><a href="market.html">Market Prices</a></li>
+            <li><a href="assistant.html">AI Assistant</a></li>
+            <li class="active"><a href="history.html">Detection History</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="main-content">
+        <div class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburger-btn">
+                    &#9776;
+                </button>
+                <h1>Detection History</h1>
+            </div>
+            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
+        </div>
+
+        <div class="feature-wrapper">
+            <div class="history-container">
+                <div id="status-message" class="loading">Loading history...</div>
+                <table id="history-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Crop</th>
+                            <th>Predicted Disease</th>
+                            <th>Confidence</th>
+                            <th>Image Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/main.js"></script>
+</body>
+</html>

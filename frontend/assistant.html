@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSense - AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Sidebar & Layout Styles */
+        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
+        
+        /* Reset container to avoid styles.css conflicts */
+        .page-container { width: 100%; display: flex; }
+        
+        .sidebar { 
+            width: 250px; 
+            background: #1B4716; 
+            color: white; 
+            height: 100vh; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            padding-top: 20px; 
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            transform: translateX(-250px);
+        }
+        .sidebar.active { transform: translateX(0); }
+        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: bold; color: white; }
+        .sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
+        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
+        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; font-family: 'Poppins', sans-serif; }
+        
+        .main-content { 
+            margin-left: 0; 
+            padding: 30px; 
+            flex-grow: 1;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+        .main-content.expanded { margin-left: 250px; }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #ddd; 
+            padding-bottom: 15px; 
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .hamburger { font-size: 24px; cursor: pointer; color: #1B4716; background: none; border: none; padding: 5px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
+        .hamburger:hover { color: #00A30E; }
+        .header h1 { color: #333; margin: 0; font-size: 24px; font-family: 'Poppins', sans-serif; }
+        .user-info { font-weight: 500; color: #555; font-family: 'Poppins', sans-serif; }
+
+        /* Feature specific wrapper */
+        .feature-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-250px); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .user-info { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <h2>AgroSense</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li class=""><a href="detect.html">Detect Disease</a></li>
+            <li class=""><a href="weather.html">Weather</a></li>
+            <li class=""><a href="market.html">Market Prices</a></li>
+            <li class="active"><a href="assistant.html">AI Assistant</a></li>
+            <li class=""><a href="history.html">Detection History</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="main-content">
+        <div class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburger-btn">
+                    &#9776;
+                </button>
+                <h1>AI Assistant</h1>
+            </div>
+            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
+        </div>
+
+        <div class="feature-wrapper">
+            
+            <div class="card chat-card" style="width: 100%;">
+                <div class="card-header">
+                    <span class="card-icon">🤖</span>
+                    <h2 style="font-family: 'Bitter', serif; font-size: 1.8rem; font-weight: 700; color: #1B4716;">AI Farm Assistant</h2>
+                </div>
+                <p class="card-description">Ask me anything about farming, diseases, or crop management</p>
+                
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-welcome">
+                        <div class="welcome-icon">👋</div>
+                        <h3>Hello, Farmer!</h3>
+                        <p>I'm your AI farming assistant. Ask me anything!</p>
+                        <div class="suggestion-chips">
+                            <button class="chip" data-query="How to prevent fungal diseases?">Prevent Diseases</button>
+                            <button class="chip" data-query="When is the best time to sell crops?">Market Timing</button>
+                            <button class="chip" data-query="What are organic pest control methods?">Organic Methods</button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Type your question here..." class="chat-input">
+                    <button class="btn-send" id="sendBtn">
+                        <span style="color:white; font-size: 0.95rem; font-weight:600;">Send</span>
+                        <span class="send-icon">📤</span>
+                    </button>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

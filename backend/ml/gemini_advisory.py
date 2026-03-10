@@ -17,13 +17,13 @@ def get_gemini_treatment(disease_name):
 
     The chilli plant is infected with: {disease_name}.
 
-    FOLLOW THIS EXACT FORMAT. DO NOT CHANGE HEADINGS.
+    FOLLOW THIS EXACT FORMAT. DO NOT CHANGE HEADINGS. DO NOT USE ANY MARKDOWN formatting like **bold** stars. Write perfectly clean, raw text only.
 
     INTRO:
     Write 2 simple lines for the farmer.
 
     CAUSES:
-   - cause 1
+   - cause 1/n
    - cause 2
 
    SYMPTOMS:
