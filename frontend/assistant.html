@@ -3,138 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSense - AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <title>AgroSense — AI Assistant</title>
+    <meta name="description" content="Chat with AgroSense's Gemini-powered AI farming assistant for instant advice on crops, diseases, and farming techniques.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bitter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="css/global.css">
     <style>
-        /* Sidebar & Layout Styles */
-        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
-        
-        /* Reset container to avoid styles.css conflicts */
-        .page-container { width: 100%; display: flex; }
-        
-        .sidebar { 
-            width: 250px; 
-            background: #1B4716; 
-            color: white; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            padding-top: 20px; 
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            transform: translateX(-250px);
-        }
-        .sidebar.active { transform: translateX(0); }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: bold; color: white; }
-        .sidebar ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
-        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; font-family: 'Poppins', sans-serif; }
-        
-        .main-content { 
-            margin-left: 0; 
-            padding: 30px; 
-            flex-grow: 1;
-            transition: margin-left 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-            min-height: 100vh;
-        }
-        .main-content.expanded { margin-left: 250px; }
+        body { display: flex; background: var(--background); }
 
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #ddd; 
-            padding-bottom: 15px; 
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .hamburger { font-size: 24px; cursor: pointer; color: #1B4716; background: none; border: none; padding: 5px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
-        .hamburger:hover { color: #00A30E; }
-        .header h1 { color: #333; margin: 0; font-size: 24px; font-family: 'Poppins', sans-serif; }
-        .user-info { font-weight: 500; color: #555; font-family: 'Poppins', sans-serif; }
-
-        /* Feature specific wrapper */
-        .feature-wrapper {
+        .chat-page-wrapper {
             max-width: 900px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--divider);
+            background: var(--surface-alt);
+        }
+
+        .chat-avatar {
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(31, 122, 99, 0.25);
+        }
+
+        .chat-header-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .chat-header-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Welcome */
+        .chat-welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .welcome-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .chat-welcome h3 {
+            font-family: 'Bitter', serif;
+            font-size: 22px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .chat-welcome p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        /* Suggestion Chips */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .chip {
+            background: var(--surface-alt);
+            border: 1px solid var(--divider);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(31, 122, 99, 0.25);
+        }
+
+        /* Message Bubbles */
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .msg-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.user .msg-avatar {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            color: white;
+            font-weight: 600;
+        }
+
+        .message.assistant .msg-avatar {
+            background: var(--surface-alt);
+            border: 1px solid var(--divider);
+        }
+
+        .msg-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .msg-bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .message.user .msg-bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .msg-bubble {
+            background: var(--surface-alt);
+            color: var(--text-primary);
+            border: 1px solid var(--divider);
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        .message.user .msg-time {
+            text-align: right;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 10px;
+            align-self: flex-start;
+            max-width: 80%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 14px 18px;
+            background: var(--surface-alt);
+            border: 1px solid var(--divider);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px; height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s ease-in-out infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        /* Input area */
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--divider);
+            background: var(--surface);
+            align-items: center;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--divider);
+            border-radius: 24px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: var(--surface-alt);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(31, 122, 99, 0.12);
+        }
+
+        .mic-btn {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--divider);
+            background: var(--surface-alt);
+            color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mic-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(31, 122, 99, 0.3);
         }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-250px); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 20px; }
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .user-info { align-self: flex-end; }
+            .chat-page-wrapper { height: calc(100vh - 100px); }
+            .message { max-width: 90%; }
+            .suggestion-chips { gap: 6px; }
+            .chip { font-size: 12px; padding: 6px 12px; }
         }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <div class="sidebar" id="sidebar">
-        <h2>AgroSense</h2>
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" aria-hidden="true"><i data-feather="leaf" fill="currentColor" stroke="none" width="20" height="20"></i></div>
+            <h2>AgroSense</h2>
+        </div>
         <ul>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li class=""><a href="detect.html">Detect Disease</a></li>
-            <li class=""><a href="weather.html">Weather</a></li>
-            <li class=""><a href="market.html">Market Prices</a></li>
-            <li class="active"><a href="assistant.html">AI Assistant</a></li>
-            <li class=""><a href="history.html">Detection History</a></li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
+            <li><a href="dashboard.html" aria-label="Dashboard"><i data-feather="grid" width="20" height="20"></i> Dashboard</a></li>
+            <li><a href="detect.html" aria-label="Detect disease"><i data-feather="camera" width="20" height="20"></i> Detect Disease</a></li>
+            <li><a href="weather.html" aria-label="Weather forecast"><i data-feather="cloud-rain" width="20" height="20"></i> Weather</a></li>
+            <li><a href="market.html" aria-label="Market prices"><i data-feather="trending-up" width="20" height="20"></i> Market Prices</a></li>
+            <li class="active"><a href="assistant.html" aria-label="AI assistant" aria-current="page"><i data-feather="message-square" width="20" height="20"></i> AI Assistant</a></li>
+            <li><a href="history.html" aria-label="Detection history"><i data-feather="clock" width="20" height="20"></i> Detection History</a></li>
         </ul>
-    </div>
+        <div class="logout-container">
+            <ul><li><a href="#" id="logout-btn" aria-label="Logout"><i data-feather="log-out" width="20" height="20"></i> Logout</a></li></ul>
+        </div>
+    </nav>
 
-    <div class="main-content" id="main-content">
+    <main class="main-content" id="main-content">
         <div class="header">
             <div class="header-left">
-                <button class="hamburger" id="hamburger-btn">
-                    &#9776;
-                </button>
+                <button class="hamburger" id="hamburger-btn" aria-label="Toggle sidebar menu"><i data-feather="menu"></i></button>
                 <h1>AI Assistant</h1>
             </div>
-            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                    <i data-feather="moon" width="18" height="18" id="theme-icon"></i>
+                </button>
+                <div class="notification-wrapper">
+                    <button class="icon-btn notification-bell" id="notif-btn" aria-label="Notifications">
+                        <i data-feather="bell" width="18" height="18"></i>
+                        <span class="notification-count" id="notif-count">3</span>
+                    </button>
+                    <div class="notification-panel" id="notif-panel">
+                        <div class="notification-panel-header">Notifications <span id="mark-all-read">Mark all read</span></div>
+                        <div class="notification-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="avatar" id="avatar-initial" aria-hidden="true">F</div>
+                    <div class="user-info-text">
+                        <span class="user-name" id="farmer-name">Loading...</span>
+                        <span class="user-role">Premium Farmer</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="feature-wrapper">
-            
-            <div class="card chat-card" style="width: 100%;">
-                <div class="card-header">
-                    <span class="card-icon">🤖</span>
-                    <h2 style="font-family: 'Bitter', serif; font-size: 1.8rem; font-weight: 700; color: #1B4716;">AI Farm Assistant</h2>
-                </div>
-                <p class="card-description">Ask me anything about farming, diseases, or crop management</p>
-                
-                <div class="chat-container" id="chatContainer">
-                    <div class="chat-welcome">
-                        <div class="welcome-icon">👋</div>
-                        <h3>Hello, Farmer!</h3>
-                        <p>I'm your AI farming assistant. Ask me anything!</p>
-                        <div class="suggestion-chips">
-                            <button class="chip" data-query="How to prevent fungal diseases?">Prevent Diseases</button>
-                            <button class="chip" data-query="When is the best time to sell crops?">Market Timing</button>
-                            <button class="chip" data-query="What are organic pest control methods?">Organic Methods</button>
-                        </div>
+        <div class="chat-page-wrapper">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-header-info">
+                        <h3>AgroSense AI</h3>
+                        <p><span class="status-dot"></span> Online — Powered by Gemini</p>
                     </div>
-                    <div class="chat-messages" id="chatMessages"></div>
                 </div>
 
-                <div class="chat-input-container">
-                    <input type="text" id="chatInput" placeholder="Type your question here..." class="chat-input">
-                    <button class="btn-send" id="sendBtn">
-                        <span style="color:white; font-size: 0.95rem; font-weight:600;">Send</span>
-                        <span class="send-icon">📤</span>
+                <div class="messages-area" id="messagesArea">
+                    <div class="chat-welcome" id="chatWelcome">
+                        <div class="welcome-emoji">🌾</div>
+                        <h3>Hello, Farmer!</h3>
+                        <p>I'm your AI farming assistant. Ask me anything about crops, diseases, or farming!</p>
+                        <div class="suggestion-chips">
+                            <button class="chip" data-query="Why are my tomato leaves yellow?">🍅 Yellow tomato leaves?</button>
+                            <button class="chip" data-query="What fertilizer is best for rice?">🌾 Best fertilizer for rice?</button>
+                            <button class="chip" data-query="How to prevent leaf blight?">🍃 Prevent leaf blight?</button>
+                            <button class="chip" data-query="When is the best time to sell crops?">📈 Best time to sell?</button>
+                            <button class="chip" data-query="What are organic pest control methods?">🌿 Organic pest control?</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <button class="mic-btn" id="micBtn" aria-label="Voice input (coming soon)" title="Voice input (coming soon)">
+                        <i data-feather="mic" width="18" height="18"></i>
+                    </button>
+                    <input type="text" id="chatInput" placeholder="Type your farming question..." aria-label="Type your farming question">
+                    <button class="send-btn" id="sendBtn" aria-label="Send message">
+                        <i data-feather="send" width="18" height="18"></i>
                     </button>
                 </div>
             </div>
-        
         </div>
-    </div>
+    </main>
 
     <script src="js/main.js"></script>
+    <script>
+        feather.replace();
+
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesArea = document.getElementById('messagesArea');
+        const chatWelcome = document.getElementById('chatWelcome');
+        const micBtn = document.getElementById('micBtn');
+
+        const API_BASE = 'http://localhost:5000/api';
+        const tok = localStorage.getItem('agrosense_token');
+
+        function getTime() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getUserInitial() {
+            const nameEl = document.getElementById('farmer-name');
+            return (nameEl && nameEl.innerText && nameEl.innerText !== 'Loading...') ? nameEl.innerText.charAt(0).toUpperCase() : 'F';
+        }
+
+        function addMessage(text, type) {
+            if (chatWelcome) chatWelcome.style.display = 'none';
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+
+            const avatarContent = type === 'user' ? getUserInitial() : '🤖';
+
+            msgDiv.innerHTML = `
+                <div class="msg-avatar">${avatarContent}</div>
+                <div class="msg-content">
+                    <div class="msg-bubble">${text}</div>
+                    <span class="msg-time">${getTime()}</span>
+                </div>
+            `;
+            messagesArea.appendChild(msgDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.id = 'typingIndicator';
+            div.innerHTML = `
+                <div class="msg-avatar" style="background: var(--surface-alt); border: 1px solid var(--divider);">🤖</div>
+                <div class="typing-dots"><span></span><span></span><span></span></div>
+            `;
+            messagesArea.appendChild(div);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function hideTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+
+            addMessage(msg, 'user');
+            chatInput.value = '';
+            showTyping();
+
+            try {
+                const res = await fetch(`${API_BASE}/advisory`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+                    body: JSON.stringify({ disease: msg })
+                });
+                const data = await res.json();
+                hideTyping();
+                const reply = data.reply || data.advisory || 'Sorry, no response available.';
+                addMessage(reply, 'assistant');
+            } catch (err) {
+                hideTyping();
+                addMessage('Connection error. Please check your connection and try again.', 'assistant');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+        // Suggestion chips
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chatInput.value = chip.dataset.query;
+                sendMessage();
+            });
+        });
+
+        // Mic button
+        micBtn.addEventListener('click', () => {
+            alert('🎙️ Voice input will be available in the next update!');
+        });
+
+        // Avatar
+        setTimeout(() => {
+            const nameEl = document.getElementById('farmer-name');
+            if (nameEl && nameEl.innerText && nameEl.innerText !== 'Loading...') {
+                document.getElementById('avatar-initial').innerText = nameEl.innerText.charAt(0).toUpperCase();
+            }
+        }, 500);
+    </script>
 </body>
 </html>

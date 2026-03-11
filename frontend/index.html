@@ -3,26 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSense - AI Powered Farming</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AgroSense — AI Powered Smart Farming Platform</title>
+    <meta name="description" content="AgroSense is an AI-powered agriculture platform for farmers. Detect crop diseases, get weather insights, track live Mandi prices, and receive personalized smart farming recommendations.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bitter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
     <style>
-        :root {
-            --primary-green: #00A30E;
-            --dark-green: #1B4716;
-            --light-green: #7AD656;
-            --sky-blue: #00AAFF;
-            --soft-bg: #ADFFC7;
-            --white: #ffffff;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--soft-bg);
-            color: #333;
-            overflow-x: hidden;
+        /* ===== Landing-page-specific overrides ===== */
+        body {
+            background: var(--background);
+            display: block;
         }
 
         /* Navbar */
@@ -30,58 +19,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 50px;
-            background-color: var(--dark-green);
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 18px 50px;
+            background: var(--text-primary);
+            color: white;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.10);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .navbar .logo {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             font-family: 'Bitter', serif;
-            letter-spacing: 1px;
-            color: var(--soft-bg);
+            letter-spacing: 0.5px;
+            color: white;
             text-decoration: none;
         }
+
+        .navbar .logo:hover { text-decoration: none; }
 
         .nav-buttons {
             display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 16px;
-        }
-
-        .btn-outline {
-            border: 2px solid var(--light-green);
-            color: var(--white);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--light-green);
-            color: var(--dark-green);
-        }
-
-        .btn-solid {
-            background-color: var(--primary-green);
-            color: var(--white);
-            border: 2px solid var(--primary-green);
-        }
-
-        .btn-solid:hover {
-            background-color: var(--light-green);
-            border-color: var(--light-green);
-            color: var(--dark-green);
+            gap: 12px;
+            align-items: center;
         }
 
         /* Hero Section */
@@ -92,44 +53,77 @@
             padding: 80px 50px;
             max-width: 1200px;
             margin: 0 auto;
-            gap: 50px;
+            gap: 60px;
         }
 
-        .hero-text {
-            flex: 1;
-        }
+        .hero-text { flex: 1; }
 
         .hero-text h1 {
             font-size: 48px;
-            color: var(--dark-green);
+            color: var(--text-primary);
             font-family: 'Bitter', serif;
             margin-bottom: 20px;
-            line-height: 1.2;
+            line-height: 1.15;
         }
 
         .hero-text p {
             font-size: 18px;
-            color: #444;
+            color: var(--text-secondary);
             margin-bottom: 40px;
-            line-height: 1.6;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .start-btn {
-            display: inline-block;
-            background-color: var(--sky-blue);
-            color: var(--white);
-            padding: 15px 35px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 36px;
             border-radius: 30px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             text-decoration: none;
-            box-shadow: 0 8px 15px rgba(0, 170, 255, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 24px rgba(31, 122, 99, 0.30);
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
         }
 
         .start-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 170, 255, 0.4);
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(93, 187, 99, 0.35);
+            text-decoration: none;
+        }
+
+        .demo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--primary);
+            padding: 16px 36px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid var(--primary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .demo-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            text-decoration: none;
         }
 
         .hero-image {
@@ -141,110 +135,196 @@
 
         .hero-image img {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(27, 71, 22, 0.2);
+            box-shadow: 0 20px 50px rgba(31, 122, 99, 0.18);
             object-fit: cover;
         }
 
         /* Features Section */
         .features-section {
-            background-color: var(--white);
+            background: var(--surface);
             padding: 80px 50px;
             text-align: center;
         }
 
         .features-section h2 {
             font-size: 36px;
-            color: var(--dark-green);
+            color: var(--text-primary);
             font-family: 'Bitter', serif;
+            margin-bottom: 16px;
+        }
+
+        .features-section .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 17px;
             margin-bottom: 50px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .feature-card {
-            background-color: var(--soft-bg);
-            padding: 40px 30px;
+            background: var(--background);
+            padding: 40px 28px;
             border-radius: 16px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            border: 1px solid var(--divider);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 163, 14, 0.2);
-        }
-
-        .feature-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            color: var(--primary-green);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
             display: block;
         }
 
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+            text-decoration: none;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(31, 122, 99, 0.08);
+            margin-left: auto;
+            margin-right: auto;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--primary);
+            transform: scale(1.08);
+            box-shadow: 0 8px 20px rgba(31, 122, 99, 0.3);
+        }
+
         .feature-card h3 {
-            color: var(--dark-green);
-            font-size: 24px;
-            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-size: 22px;
+            margin-bottom: 12px;
             font-family: 'Bitter', serif;
         }
 
         .feature-card p {
-            color: #555;
+            color: var(--text-secondary);
             font-size: 15px;
             line-height: 1.6;
         }
 
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 50px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-family: 'Bitter', serif;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 36px;
+            opacity: 0.92;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            color: var(--primary);
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+        }
+
         /* Footer */
         footer {
-            background-color: var(--dark-green);
-            color: var(--soft-bg);
+            background: var(--text-primary);
+            color: rgba(255, 255, 255, 0.75);
             text-align: center;
             padding: 30px;
             font-size: 14px;
         }
 
+        footer a {
+            color: var(--accent);
+        }
+
+        /* Responsive */
         @media (max-width: 900px) {
             .hero {
                 flex-direction: column;
                 text-align: center;
                 padding: 40px 20px;
             }
-            .hero-text h1 {
-                font-size: 38px;
-            }
-            .navbar {
-                padding: 15px 20px;
-            }
+            .hero-text h1 { font-size: 36px; }
+            .hero-actions { justify-content: center; }
+            .navbar { padding: 15px 20px; }
+            .features-section { padding: 60px 20px; }
+            .cta-section { padding: 60px 20px; }
         }
     </style>
 </head>
 <body>
 
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Navbar -->
-    <nav class="navbar">
-        <a href="index.html" class="logo">🌿 AgroSense</a>
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="logo" aria-label="AgroSense Home">🌿 AgroSense</a>
         <div class="nav-buttons">
-            <a href="login.html" class="btn btn-outline">Login</a>
-            <a href="signup.html" class="btn btn-solid">Register</a>
+            <a href="login.html" class="btn btn-outline" aria-label="Login to your account" id="nav-login-btn">Login</a>
+            <a href="signup.html" class="btn btn-solid" aria-label="Create a new account" id="nav-register-btn">Register</a>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero">
+    <header class="hero" id="main-content">
         <div class="hero-text">
             <h1>AI-Powered Smart Farming for a Better Harvest</h1>
             <p>AgroSense is an advanced agriculture platform designed specifically for farmers. Harness the power of AI to detect crop diseases instantly, unlock real-time weather insights, track live Mandi prices, and receive personalized smart farming recommendations.</p>
-            <a href="login.html" class="start-btn">Start Farming Smart</a>
+            <div class="hero-actions">
+                <a href="login.html" class="start-btn" aria-label="Start farming smart — go to login" id="hero-start-btn">🚀 Start Farming Smart</a>
+                <a href="login.html" class="demo-btn" aria-label="Explore the dashboard" id="hero-explore-btn">Explore Dashboard →</a>
+            </div>
         </div>
         <div class="hero-image">
             <img src="images/farmer_photo.png" alt="Indian Farmer using Smartphone in Field">
@@ -252,39 +332,47 @@
     </header>
 
     <!-- Features Section -->
-    <section class="features-section">
+    <section class="features-section" aria-label="Platform features">
         <h2>Everything You Need in One Platform</h2>
+        <p class="section-subtitle">Powerful AI tools built for the modern farmer, accessible from any device.</p>
         <div class="features-grid">
-            
-            <div class="feature-card">
+
+            <a href="login.html" class="feature-card" aria-label="Disease Detection — upload a plant photo for instant diagnosis" id="feature-detect">
                 <span class="feature-icon">🔬</span>
                 <h3>Disease Detection</h3>
                 <p>Upload a photo of your plant leaves and let our AI instantly identify diseases and suggest effective treatments.</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="login.html" class="feature-card" aria-label="Weather Forecast — real-time weather and farming advisories" id="feature-weather">
                 <span class="feature-icon">🌤️</span>
                 <h3>Weather Forecast</h3>
                 <p>Get highly accurate local weather reports paired with real-time farming advisories to plan your daily activities.</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="login.html" class="feature-card" aria-label="Market Intelligence — live mandi prices across India" id="feature-market">
                 <span class="feature-icon">📈</span>
                 <h3>Market Intelligence</h3>
                 <p>Stay updated with live Mandi prices across India to sell your crops confidently at the most profitable times.</p>
-            </div>
+            </a>
 
-            <div class="feature-card">
+            <a href="login.html" class="feature-card" aria-label="AI Farming Assistant — 24/7 smart farming advice" id="feature-assistant">
                 <span class="feature-icon">🤖</span>
                 <h3>AI Farming Assistant</h3>
                 <p>Have a question? Ask our smart AI assistant embedded directly into your dashboard for immediate 24/7 farming advice.</p>
-            </div>
+            </a>
 
         </div>
     </section>
 
+    <!-- CTA Section -->
+    <section class="cta-section" aria-label="Call to action">
+        <h2>Ready to Farm Smarter?</h2>
+        <p>Join thousands of farmers who are already using AgroSense to increase their yield and reduce crop losses.</p>
+        <a href="login.html" class="cta-btn" aria-label="Get started with AgroSense" id="cta-get-started-btn">Get Started — It's Free</a>
+    </section>
+
     <!-- Footer -->
-    <footer>
+    <footer role="contentinfo">
         <p>&copy; 2026 AgroSense Platform. Driving the future of farming.</p>
     </footer>
 

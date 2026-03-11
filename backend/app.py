@@ -1,18 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
-from ml.inference import preprocess_image,predict
 import os
-import numpy as np
-from PIL import Image
-import io
-import base64
-import requests
+import secrets
 from datetime import datetime
-import json
-from ml.gemini_advisory import get_gemini_treatment
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
-import secrets
 
 load_dotenv()
 

@@ -3,249 +3,670 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSense - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AgroSense — Farmer Dashboard</title>
+    <meta name="description" content="Your AI-powered smart farming dashboard. Detect diseases, check weather, monitor market prices, and get farming advice.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bitter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/global.css">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
-        
-        /* Sidebar Styles */
-        .sidebar { 
-            width: 250px; 
-            background: #1B4716; 
-            color: white; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            padding-top: 20px; 
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            transform: translateX(-250px);
-        }
-        .sidebar.active { transform: translateX(0); }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; }
-        .sidebar ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
-        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; }
-        
-        /* Main Content Styles */
-        .main-content { 
-            margin-left: 0; 
-            padding: 30px; 
-            flex-grow: 1;
-            transition: margin-left 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .main-content.expanded { margin-left: 250px; }
+        body { display: flex; background: var(--background); }
 
-        /* Header Styles */
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #ddd; 
-            padding-bottom: 15px; 
+        /* Hero Banner */
+        .hero-banner {
+            position: relative;
+            background: linear-gradient(135deg, #1F7A63, #2E8B57, #5DBB63);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-hover);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 200px;
         }
-        .header-left {
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+
+        .hero-profile-inline {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 3;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-radius: 30px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
         }
-        .hamburger {
-            font-size: 24px;
-            cursor: pointer;
-            color: #1B4716;
-            background: none;
-            border: none;
-            padding: 5px;
-            transition: color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .hamburger:hover {
-            color: #00A30E;
-        }
-        .header h1 { color: #333; margin: 0; font-size: 24px; }
-        .user-info { font-weight: 500; color: #555; }
 
-        /* Welcome Banner */
-        .welcome-banner {
-            background: linear-gradient(135deg, #ADFFC7 0%, #7AD656 100%);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border-left: 5px solid #1B4716;
+        .hero-profile-inline .star {
+            width: 24px; height: 24px;
+            background: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: bold; font-size: 12px;
         }
-        .welcome-banner h2 {
-            color: #1B4716;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 24px;
+
+        .hero-content { position: relative; z-index: 2; color: white; max-width: 650px; }
+
+        .hero-label {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .welcome-banner p {
-            color: #444;
-            font-size: 16px;
+
+        .hero-content h2 {
+            margin: 0 0 12px 0;
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Bitter', serif;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 15px;
             line-height: 1.6;
             margin: 0;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        /* Cards Grid */
-        .cards { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 25px; 
+        /* Quick Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
         }
-        .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            text-decoration: none; 
-            color: inherit; 
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .stat-card:nth-child(1)::before { background: var(--primary); }
+        .stat-card:nth-child(2)::before { background: var(--accent); }
+        .stat-card:nth-child(3)::before { background: var(--sun-gold); }
+        .stat-card:nth-child(4)::before { background: var(--info-blue); }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+
+        .stat-card-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Bitter', serif;
+        }
+
+        .stat-card-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-card-change.up { color: var(--success-green); }
+        .stat-card-change.down { color: var(--alert-red); }
+
+        /* Dashboard Cards Grid */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .dash-card {
+            background: var(--surface);
+            padding: 28px 22px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--divider);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 1px solid rgba(0,0,0,0.03);
+            color: inherit;
         }
-        .card:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 12px 24px rgba(0, 163, 14, 0.15); 
-            border-color: #7AD656;
+
+        .dash-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: var(--shadow-hover), 0 0 0 2px var(--accent);
+            text-decoration: none;
         }
-        .card-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-            background: #ADFFC7;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .dash-card-icon {
+            font-size: 28px;
+            margin-bottom: 18px;
+            background: rgba(31, 122, 99, 0.08);
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
             border-radius: 50%;
-            color: #1B4716;
+            color: var(--primary);
+            transition: var(--transition);
         }
-        .card h3 { 
-            color: #1B4716; 
-            margin: 0 0 10px 0; 
-            font-size: 20px;
+
+        .dash-card:hover .dash-card-icon {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            color: white;
+            box-shadow: 0 8px 20px rgba(31, 122, 99, 0.3);
+        }
+
+        .dash-card h3 {
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+            font-size: 16px;
             font-weight: 600;
         }
-        .card p { 
-            color: #666; 
-            font-size: 14px; 
+
+        .dash-card p {
+            color: var(--text-secondary);
+            font-size: 13px;
             margin: 0;
             line-height: 1.5;
         }
 
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .cards {
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            }
+        /* Farm Insights Section */
+        .section-title {
+            font-family: 'Bitter', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
+
+        .section-title span {
+            font-size: 20px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+
+        .chart-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-card-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .chart-card-badge.green { background: rgba(93, 187, 99, 0.12); color: var(--accent); }
+        .chart-card-badge.orange { background: rgba(244, 162, 97, 0.12); color: var(--sun-gold); }
+        .chart-card-badge.blue { background: rgba(58, 134, 255, 0.12); color: var(--info-blue); }
+
+        .chart-wrapper {
+            position: relative;
+            height: 200px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-250px);
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-            .welcome-banner {
-                padding: 20px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            .user-info {
-                align-self: flex-end;
-            }
-            /* Show hamburger clearly on mobile */
-            .hamburger {
-                display: block;
-            }
-            .dashboard-layout {
-                grid-template-columns: 1fr;
-            }
+            .hero-banner { padding: 32px 20px; min-height: 160px; }
+            .hero-content h2 { font-size: 22px; }
+            .hero-profile-inline { display: none; }
+            .cards { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar" id="sidebar">
-        <h2>AgroSense</h2>
-        <ul>
-            <li class="active"><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="detect.html">Detect Disease</a></li>
-            <li><a href="weather.html">Weather</a></li>
-            <li><a href="market.html">Market Prices</a></li>
-            <li><a href="assistant.html">AI Assistant</a></li>
-            <li><a href="history.html">Detection History</a></li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
-        </ul>
-    </div>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <div class="main-content" id="main-content">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" aria-hidden="true">
+                <i data-feather="leaf" fill="currentColor" stroke="none" width="20" height="20"></i>
+            </div>
+            <h2>AgroSense</h2>
+        </div>
+
+        <ul>
+            <li class="active">
+                <a href="dashboard.html" aria-label="Dashboard" aria-current="page">
+                    <i data-feather="grid" width="20" height="20"></i> Dashboard
+                </a>
+            </li>
+            <li><a href="detect.html" aria-label="Detect crop disease"><i data-feather="camera" width="20" height="20"></i> Detect Disease</a></li>
+            <li><a href="weather.html" aria-label="Weather forecast"><i data-feather="cloud-rain" width="20" height="20"></i> Weather</a></li>
+            <li><a href="market.html" aria-label="Market prices"><i data-feather="trending-up" width="20" height="20"></i> Market Prices</a></li>
+            <li><a href="assistant.html" aria-label="AI farming assistant"><i data-feather="message-square" width="20" height="20"></i> AI Assistant</a></li>
+            <li><a href="history.html" aria-label="Detection history"><i data-feather="clock" width="20" height="20"></i> Detection History</a></li>
+        </ul>
+
+        <div class="logout-container">
+            <ul>
+                <li><a href="#" id="sidebar-logout-btn" aria-label="Logout from AgroSense"><i data-feather="log-out" width="20" height="20"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
         <div class="header">
             <div class="header-left">
-                <button class="hamburger" id="hamburger-btn">
-                    &#9776;
+                <button class="hamburger" id="hamburger-btn" aria-label="Toggle sidebar menu"><i data-feather="menu"></i></button>
+                <h1>Dashboard</h1>
+            </div>
+
+            <div class="header-actions">
+                <!-- Dark Mode Toggle -->
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                    <i data-feather="moon" width="18" height="18" id="theme-icon"></i>
                 </button>
-                <h1>Farmer Dashboard</h1>
+
+                <!-- Notifications -->
+                <div class="notification-wrapper">
+                    <button class="icon-btn notification-bell" id="notif-btn" aria-label="Notifications">
+                        <i data-feather="bell" width="18" height="18"></i>
+                        <span class="notification-count" id="notif-count">3</span>
+                    </button>
+                    <div class="notification-panel" id="notif-panel">
+                        <div class="notification-panel-header">
+                            Notifications
+                            <span id="mark-all-read">Mark all read</span>
+                        </div>
+                        <div class="notification-list" id="notif-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-menu-wrapper">
+                    <button class="user-menu" id="user-menu-btn" aria-label="User menu" aria-expanded="false" aria-haspopup="true">
+                        <div class="avatar" id="avatar-initial" aria-hidden="true">F</div>
+                        <div class="user-info-text">
+                            <span class="user-name" id="farmer-name">Loading...</span>
+                            <span class="user-role">Premium Farmer</span>
+                        </div>
+                    </button>
+
+                    <div class="dropdown-panel" id="user-dropdown" role="menu">
+                        <div class="dropdown-profile">
+                            <div class="avatar-large" id="dropdown-initial" aria-hidden="true">F</div>
+                            <div class="dropdown-user-details">
+                                <span class="d-user-name" id="dropdown-name">Loading...</span>
+                                <span class="d-user-role">Premium Farmer</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" role="menuitem"><i data-feather="user"></i> Profile</a>
+                        <a href="#" class="dropdown-item" role="menuitem"><i data-feather="settings"></i> My Account</a>
+                        <a href="history.html" class="dropdown-item" role="menuitem"><i data-feather="clock"></i> Detection History</a>
+                        <a href="#" class="dropdown-item" role="menuitem"><i data-feather="help-circle"></i> Help / Support</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-danger" id="dropdown-logout" role="menuitem"><i data-feather="log-out"></i> Logout</a>
+                    </div>
+                </div>
             </div>
-            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
         </div>
 
-        <div class="welcome-banner" style="margin-bottom: 30px;">
-            <h2>Welcome to AgroSense</h2>
-            <p>AgroSense is an AI-powered smart farming assistant designed to help farmers detect crop diseases, receive AI-based treatment advice, check weather forecasts, monitor mandi market prices, and manage their farming decisions efficiently.</p>
+        <!-- Hero Banner -->
+        <section class="hero-banner" aria-label="Welcome banner">
+            <div class="hero-profile-inline" aria-hidden="true">
+                <div class="star">★</div>
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">PRO FARMER</span>
+            </div>
+            <div class="hero-content">
+                <span class="hero-label">Smart Agriculture</span>
+                <h2>Welcome to AgroSense</h2>
+                <p>Your AI powered smart farming assistant helping detect crop diseases, track weather patterns, and monitor real-time market prices.</p>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Scans Today</span>
+                    <div class="stat-card-icon" style="background: rgba(31,122,99,0.08);">🔬</div>
+                </div>
+                <div class="stat-card-value">12</div>
+                <div class="stat-card-change up">↑ 18% from yesterday</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Crop Health</span>
+                    <div class="stat-card-icon" style="background: rgba(93,187,99,0.08);">🌱</div>
+                </div>
+                <div class="stat-card-value">87%</div>
+                <div class="stat-card-change up">↑ 5% this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Weather</span>
+                    <div class="stat-card-icon" style="background: rgba(244,162,97,0.08);">🌤️</div>
+                </div>
+                <div class="stat-card-value">28°C</div>
+                <div class="stat-card-change down">↓ Rain expected</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Market Trend</span>
+                    <div class="stat-card-icon" style="background: rgba(58,134,255,0.08);">📈</div>
+                </div>
+                <div class="stat-card-value">+4.2%</div>
+                <div class="stat-card-change up">↑ Tomato prices rising</div>
+            </div>
         </div>
 
-        <!-- NEW MODULAR LAYOUT FOR DASHBOARD -->
-        <div class="cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
-            <a href="detect.html" class="card">
-                <div class="card-icon">🔍</div>
+        <!-- Dashboard Cards -->
+        <div class="cards" role="list">
+            <a href="detect.html" class="dash-card" role="listitem" aria-label="Detect crop disease">
+                <div class="dash-card-icon"><i data-feather="camera" width="28" height="28"></i></div>
                 <h3>Detect Disease</h3>
-                <p>Upload a photo of your crop to identify diseases and get AI treatment advice.</p>
+                <p>Upload a photo of your crop to instantly identify diseases and get AI treatment advice.</p>
             </a>
-                <a href="weather.html" class="card">
-                    <div class="card-icon">☁️</div>
-                    <h3>Weather Forecast</h3>
-                    <p>Check current weather conditions and farming advisories for your area.</p>
-                </a>
-                <a href="market.html" class="card">
-                    <div class="card-icon">📈</div>
+            <a href="weather.html" class="dash-card" role="listitem" aria-label="Weather forecast">
+                <div class="dash-card-icon"><i data-feather="cloud-drizzle" width="28" height="28"></i></div>
+                <h3>Weather Forecast</h3>
+                <p>Check highly accurate local weather conditions and farming advisories.</p>
+            </a>
+            <a href="market.html" class="dash-card" role="listitem" aria-label="Live market prices">
+                <div class="dash-card-icon"><i data-feather="bar-chart-2" width="28" height="28"></i></div>
                 <h3>Market Prices</h3>
-                <p>Check the latest mandi prices for your crops to make informed decisions.</p>
+                <p>Track the latest live mandi prices for your crops and selling decisions.</p>
             </a>
-            <a href="assistant.html" class="card">
-                <div class="card-icon">💬</div>
+            <a href="assistant.html" class="dash-card" role="listitem" aria-label="AI farming assistant">
+                <div class="dash-card-icon"><i data-feather="message-circle" width="28" height="28"></i></div>
                 <h3>AI Assistant</h3>
-                <p>Ask our Gemini-powered AI assistant any farming-related questions.</p>
+                <p>Chat with our Gemini-powered AI expert for farming-related questions.</p>
             </a>
-            <a href="history.html" class="card">
-                <div class="card-icon">📅</div>
-                <h3>Detection History</h3>
-                <p>View all your past crop disease detections and treatment advice.</p>
-            </a>
+        </div>
+
+        <!-- Farm Insights Section -->
+        <h3 class="section-title"><span>📊</span> Farm Insights</h3>
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">Crop Health Trend</span>
+                    <span class="chart-card-badge green">Last 7 days</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="cropHealthChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">Disease Detection Stats</span>
+                    <span class="chart-card-badge orange">This month</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="diseaseChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">Temperature Trend</span>
+                    <span class="chart-card-badge blue">7-day</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <span class="chart-card-title">Market Price Changes</span>
+                    <span class="chart-card-badge green">Weekly</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="marketChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
-    
+    </main>
+
     <script src="js/main.js"></script>
+    <script>
+        feather.replace();
+
+        // Setup avatar initials
+        setTimeout(() => {
+            const nameEl = document.getElementById('farmer-name');
+            if (nameEl && nameEl.innerText && nameEl.innerText !== 'Loading...') {
+                const initial = nameEl.innerText.charAt(0).toUpperCase();
+                document.getElementById('avatar-initial').innerText = initial;
+                const ddInitial = document.getElementById('dropdown-initial');
+                const ddName = document.getElementById('dropdown-name');
+                if (ddInitial) ddInitial.innerText = initial;
+                if (ddName) ddName.innerText = nameEl.innerText;
+            }
+        }, 600);
+
+        // ===== Chart.js — Farm Insights =====
+        const chartFont = { family: "'Inter', sans-serif", size: 11 };
+        const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--divider').trim() || '#DCE8E1';
+
+        const defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 1200, easing: 'easeInOutQuart' },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: chartFont, color: '#5F6F6B' } },
+                y: { grid: { color: gridColor + '44' }, ticks: { font: chartFont, color: '#5F6F6B' }, beginAtZero: true }
+            }
+        };
+
+        // 1. Crop Health — Line Chart
+        new Chart(document.getElementById('cropHealthChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Health Score',
+                    data: [82, 84, 80, 86, 88, 85, 87],
+                    borderColor: '#1F7A63',
+                    backgroundColor: 'rgba(31, 122, 99, 0.08)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#1F7A63',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: { ...defaultOptions, scales: { ...defaultOptions.scales, y: { ...defaultOptions.scales.y, min: 70, max: 100 } } }
+        });
+
+        // 2. Disease Detection — Bar Chart
+        new Chart(document.getElementById('diseaseChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Leaf Spot', 'Powdery Mildew', 'Blight', 'Anthracnose', 'Healthy', 'Curl Virus'],
+                datasets: [{
+                    label: 'Detections',
+                    data: [18, 12, 9, 7, 32, 5],
+                    backgroundColor: ['#E63946', '#ff9f1c', '#f4a261', '#1F7A63', '#5DBB63', '#3a86ff'],
+                    borderRadius: 6,
+                    barThickness: 24
+                }]
+            },
+            options: defaultOptions
+        });
+
+        // 3. Temperature — Area Chart
+        new Chart(document.getElementById('weatherChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Temp °C',
+                    data: [28, 30, 27, 32, 29, 26, 28],
+                    borderColor: '#3a86ff',
+                    backgroundColor: 'rgba(58, 134, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3a86ff',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: defaultOptions
+        });
+
+        // 4. Market Prices — Line Chart
+        new Chart(document.getElementById('marketChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Tomato ₹/kg',
+                        data: [20, 21, 19, 22, 24, 23, 22],
+                        borderColor: '#E63946',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#E63946'
+                    },
+                    {
+                        label: 'Onion ₹/kg',
+                        data: [18, 17, 19, 18, 16, 17, 18],
+                        borderColor: '#f4a261',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#f4a261'
+                    }
+                ]
+            },
+            options: {
+                ...defaultOptions,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: { font: chartFont, usePointStyle: true, pointStyle: 'circle', padding: 12 }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

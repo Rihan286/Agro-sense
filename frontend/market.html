@@ -3,188 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSense - Market Prices</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <title>AgroSense — Market Price Analytics</title>
+    <meta name="description" content="Track live mandi prices, analyze crop price trends, and get selling recommendations.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bitter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/global.css">
     <style>
-        /* Sidebar & Layout Styles */
-        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
-        
-        /* Reset container to avoid styles.css conflicts */
-        .page-container { width: 100%; display: flex; }
-        
-        .sidebar { 
-            width: 250px; 
-            background: #1B4716; 
-            color: white; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            padding-top: 20px; 
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            transform: translateX(-250px);
+        body { display: flex; background: var(--background); }
+
+        .market-page { max-width: 960px; margin: 0 auto; }
+
+        /* Search */
+        .market-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
         }
-        .sidebar.active { transform: translateX(0); }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: bold; color: white; }
-        .sidebar ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
-        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; font-family: 'Poppins', sans-serif; }
-        
-        .main-content { 
-            margin-left: 0; 
-            padding: 30px; 
-            flex-grow: 1;
-            transition: margin-left 0.3s ease;
+
+        .market-search select {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid var(--divider);
+            border-radius: 30px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235F6F6B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .market-search select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .market-search button {
+            padding: 14px 28px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .market-search button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(31, 122, 99, 0.25);
+        }
+
+        /* Top Profitable Crops */
+        .top-crops-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Bitter', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .crops-table-wrapper {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+
+        .crops-table {
             width: 100%;
-            box-sizing: border-box;
-            min-height: 100vh;
+            border-collapse: collapse;
         }
-        .main-content.expanded { margin-left: 250px; }
 
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #ddd; 
-            padding-bottom: 15px; 
+        .crops-table th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--divider);
         }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .hamburger { font-size: 24px; cursor: pointer; color: #1B4716; background: none; border: none; padding: 5px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
-        .hamburger:hover { color: #00A30E; }
-        .header h1 { color: #333; margin: 0; font-size: 24px; font-family: 'Poppins', sans-serif; }
-        .user-info { font-weight: 500; color: #555; font-family: 'Poppins', sans-serif; }
 
-        /* Feature specific wrapper */
-        .feature-wrapper {
-            max-width: 900px;
-            margin: 0 auto;
+        .crops-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(220, 232, 225, 0.5);
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .crops-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .crops-table tbody tr:hover {
+            background: var(--surface-alt);
+        }
+
+        .crops-table tbody tr:last-child td { border-bottom: none; }
+
+        .crop-name {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 600;
+        }
+
+        .crop-emoji { font-size: 20px; }
+
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .change-badge.up { background: rgba(93, 187, 99, 0.1); color: var(--success-green); }
+        .change-badge.down { background: rgba(230, 57, 70, 0.08); color: var(--alert-red); }
+
+        /* Price Display */
+        .price-hero {
+            display: none;
+            background: linear-gradient(135deg, var(--text-primary), #2E8B57);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(30, 42, 40, 0.25);
+        }
+
+        .price-hero::before {
+            content: '';
+            position: absolute;
+            top: -50px; right: -30px;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+
+        .price-hero.active { display: block; }
+
+        .price-hero-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-crop-name {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .price-amount {
+            font-size: 42px;
+            font-weight: 700;
+            font-family: 'Bitter', serif;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .price-unit {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .price-trend-hero {
+            text-align: right;
+        }
+
+        .trend-badge-hero {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .trend-badge-hero.up { background: rgba(93, 187, 99, 0.2); color: #5DBB63; }
+        .trend-badge-hero.down { background: rgba(230, 57, 70, 0.2); color: #ff6b6b; }
+
+        .mandi-name {
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.85;
+        }
+
+        /* Price Range */
+        .price-range-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .price-range-grid.active { display: grid; }
+
+        .price-range-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .price-range-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .price-range-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .price-range-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Chart */
+        .market-chart-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
+            display: none;
+        }
+
+        .market-chart-card.active { display: block; }
+
+        .market-chart-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .chart-wrapper { height: 220px; position: relative; }
+
+        /* Recommendation & Top Mandis */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            display: none;
+        }
+
+        .bottom-grid.active { display: grid; }
+
+        .rec-card, .mandis-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .rec-card h4, .mandis-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rec-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--sun-gold);
+            color: white;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .rec-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .mandi-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(220, 232, 225, 0.5);
+        }
+
+        .mandi-item:last-child { border-bottom: none; }
+
+        .mandi-item-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .mandi-item-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-250px); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 20px; }
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .user-info { align-self: flex-end; }
+            .price-range-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .bottom-grid { grid-template-columns: 1fr; }
+            .price-amount { font-size: 32px; }
         }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <div class="sidebar" id="sidebar">
-        <h2>AgroSense</h2>
+    <nav class="sidebar" id="sidebar" role="navigation">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i data-feather="leaf" fill="currentColor" stroke="none" width="20" height="20"></i></div>
+            <h2>AgroSense</h2>
+        </div>
         <ul>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li class=""><a href="detect.html">Detect Disease</a></li>
-            <li class=""><a href="weather.html">Weather</a></li>
-            <li class="active"><a href="market.html">Market Prices</a></li>
-            <li class=""><a href="assistant.html">AI Assistant</a></li>
-            <li class=""><a href="history.html">Detection History</a></li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
+            <li><a href="dashboard.html"><i data-feather="grid" width="20" height="20"></i> Dashboard</a></li>
+            <li><a href="detect.html"><i data-feather="camera" width="20" height="20"></i> Detect Disease</a></li>
+            <li><a href="weather.html"><i data-feather="cloud-rain" width="20" height="20"></i> Weather</a></li>
+            <li class="active"><a href="market.html" aria-current="page"><i data-feather="trending-up" width="20" height="20"></i> Market Prices</a></li>
+            <li><a href="assistant.html"><i data-feather="message-square" width="20" height="20"></i> AI Assistant</a></li>
+            <li><a href="history.html"><i data-feather="clock" width="20" height="20"></i> Detection History</a></li>
         </ul>
-    </div>
+        <div class="logout-container">
+            <ul><li><a href="#" id="logout-btn"><i data-feather="log-out" width="20" height="20"></i> Logout</a></li></ul>
+        </div>
+    </nav>
 
-    <div class="main-content" id="main-content">
+    <main class="main-content" id="main-content">
         <div class="header">
             <div class="header-left">
-                <button class="hamburger" id="hamburger-btn">
-                    &#9776;
-                </button>
+                <button class="hamburger" id="hamburger-btn"><i data-feather="menu"></i></button>
                 <h1>Market Prices</h1>
             </div>
-            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
-        </div>
-
-        <div class="feature-wrapper">
-            
-<div class="card market-card" style="width: 100%;">
-    <div class="card-header">
-        <span class="card-icon">💰</span>
-        <h2 style="font-family: 'Bitter', serif; font-size: 1.8rem; font-weight: 700; color: #1B4716;">Market Intelligence</h2>
-    </div>
-
-    <p class="card-description">
-        Live mandi prices from across India
-    </p>
-
-    <div class="crop-selector">
-        <select id="cropSelect" class="crop-select">
-            <option value="tomato">Tomato</option>
-            <option value="potato">Potato</option>
-            <option value="onion">Onion</option>
-            <option value="chili">Chilli</option>
-            <option value="rice">Rice</option>
-        </select>
-
-        <button class="btn-secondary" id="marketBtn">
-            Get Prices
-        </button>
-    </div>
-
-    <div id="marketData" class="market-data hidden">
-
-        <div class="price-display">
-            <div class="current-price">
-                <span class="price-label">Current Price</span>
-                <span class="price-value">
-                    ₹<span id="currentPrice">--</span>
-                </span>
-                <span class="price-unit">/quintal</span>
-            </div>
-
-            <div class="price-trend">
-                <span class="trend-badge trend-up" id="trendBadge">
-                    ↑ <span id="trendPercent">--</span>%
-                </span>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle"><i data-feather="moon" width="18" height="18" id="theme-icon"></i></button>
+                <div class="notification-wrapper">
+                    <button class="icon-btn notification-bell" id="notif-btn"><i data-feather="bell" width="18" height="18"></i><span class="notification-count" id="notif-count">3</span></button>
+                    <div class="notification-panel" id="notif-panel">
+                        <div class="notification-panel-header">Notifications <span id="mark-all-read">Mark all read</span></div>
+                        <div class="notification-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="avatar" id="avatar-initial">F</div>
+                    <div class="user-info-text">
+                        <span class="user-name" id="farmer-name">Loading...</span>
+                        <span class="user-role">Premium Farmer</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <p id="mandiName" style="margin-top:6px;font-weight:600;color:#555">
-            Mandi: --
-        </p>
-
-        <div class="price-range">
-            <div class="range-item">
-                <span>Min</span>
-                <strong>₹<span id="minPrice">--</span></strong>
+        <div class="market-page">
+            <div class="market-search">
+                <select id="cropSelect">
+                    <option value="tomato">🍅 Tomato</option>
+                    <option value="potato">🥔 Potato</option>
+                    <option value="onion">🧅 Onion</option>
+                    <option value="chili">🌶️ Chilli</option>
+                    <option value="rice">🌾 Rice</option>
+                </select>
+                <button id="marketBtn"><i data-feather="search" width="16" height="16"></i> Get Prices</button>
             </div>
 
-            <div class="range-item">
-                <span>Avg</span>
-                <strong>₹<span id="avgPrice">--</span></strong>
+            <!-- Top Profitable Crops -->
+            <div class="top-crops-section">
+                <div class="section-title">📊 Market Overview</div>
+                <div class="crops-table-wrapper">
+                    <table class="crops-table">
+                        <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Current Price</th>
+                                <th>Change</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><div class="crop-name"><span class="crop-emoji">🍅</span> Tomato</div></td>
+                                <td><strong>₹22/kg</strong></td>
+                                <td><span class="change-badge up">↑ +4.2%</span></td>
+                                <td><span style="color: var(--success-green); font-weight: 600;">Rising</span></td>
+                            </tr>
+                            <tr>
+                                <td><div class="crop-name"><span class="crop-emoji">🧅</span> Onion</div></td>
+                                <td><strong>₹18/kg</strong></td>
+                                <td><span class="change-badge down">↓ -2.1%</span></td>
+                                <td><span style="color: var(--alert-red); font-weight: 600;">Falling</span></td>
+                            </tr>
+                            <tr>
+                                <td><div class="crop-name"><span class="crop-emoji">🥔</span> Potato</div></td>
+                                <td><strong>₹15/kg</strong></td>
+                                <td><span class="change-badge up">↑ +1.8%</span></td>
+                                <td><span style="color: var(--success-green); font-weight: 600;">Stable</span></td>
+                            </tr>
+                            <tr>
+                                <td><div class="crop-name"><span class="crop-emoji">🌶️</span> Chilli</div></td>
+                                <td><strong>₹45/kg</strong></td>
+                                <td><span class="change-badge up">↑ +6.5%</span></td>
+                                <td><span style="color: var(--success-green); font-weight: 600;">Rising</span></td>
+                            </tr>
+                            <tr>
+                                <td><div class="crop-name"><span class="crop-emoji">🌾</span> Rice</div></td>
+                                <td><strong>₹32/kg</strong></td>
+                                <td><span class="change-badge down">↓ -0.5%</span></td>
+                                <td><span style="color: var(--alert-orange); font-weight: 600;">Stable</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="range-item">
-                <span>Max</span>
-                <strong>₹<span id="maxPrice">--</span></strong>
+            <!-- Dynamic Results -->
+            <div class="price-hero" id="priceHero">
+                <div class="price-hero-content">
+                    <div class="price-main">
+                        <div class="price-crop-name" id="cropNameDisplay">Tomato</div>
+                        <div class="price-amount">₹<span id="currentPrice">--</span></div>
+                        <div class="price-unit">/quintal</div>
+                        <div class="mandi-name" id="mandiName">Mandi: —</div>
+                    </div>
+                    <div class="price-trend-hero">
+                        <div class="trend-badge-hero up" id="trendBadge">↑ <span id="trendPercent">--</span>%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-range-grid" id="priceRangeGrid">
+                <div class="price-range-card">
+                    <div class="price-range-label">Minimum</div>
+                    <div class="price-range-value">₹<span id="minPrice">--</span></div>
+                </div>
+                <div class="price-range-card">
+                    <div class="price-range-label">Average</div>
+                    <div class="price-range-value">₹<span id="avgPrice">--</span></div>
+                </div>
+                <div class="price-range-card">
+                    <div class="price-range-label">Maximum</div>
+                    <div class="price-range-value">₹<span id="maxPrice">--</span></div>
+                </div>
+            </div>
+
+            <div class="market-chart-card" id="marketChartCard">
+                <h4>📈 Price Trend (Last 7 Days)</h4>
+                <div class="chart-wrapper">
+                    <canvas id="priceTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bottom-grid" id="bottomGrid">
+                <div class="rec-card">
+                    <h4>💡 Recommendation</h4>
+                    <div class="rec-badge" id="actionBadge">--</div>
+                    <p class="rec-text" id="recommendationText">Loading...</p>
+                </div>
+                <div class="mandis-card">
+                    <h4>🏪 Top Mandis</h4>
+                    <div id="marketList"></div>
+                </div>
             </div>
         </div>
-
-        <div class="market-recommendation">
-            <div class="recommendation-header">
-                <span class="rec-badge" id="actionBadge">--</span>
-                <h4>Recommendation</h4>
-            </div>
-            <p id="recommendationText">Loading...</p>
-        </div>
-
-        <div class="top-markets">
-            <h4>🏪 Top Mandis</h4>
-            <div class="market-list" id="marketList">
-            </div>
-        </div>
-
-    </div>
-</div>
-        
-        </div>
-    </div>
+    </main>
 
     <script src="js/main.js"></script>
+    <script>
+        feather.replace();
+
+        const API_BASE = 'http://localhost:5000/api';
+        const tok = localStorage.getItem('agrosense_token');
+        let priceChart = null;
+
+        document.getElementById('marketBtn').addEventListener('click', async () => {
+            const crop = document.getElementById('cropSelect').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/market-prices?crop=${crop}`, {
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error('No data');
+
+                const market = data.data;
+
+                // Show sections
+                document.getElementById('priceHero').classList.add('active');
+                document.getElementById('priceRangeGrid').classList.add('active');
+                document.getElementById('marketChartCard').classList.add('active');
+                document.getElementById('bottomGrid').classList.add('active');
+
+                // Update values
+                document.getElementById('cropNameDisplay').textContent = crop.charAt(0).toUpperCase() + crop.slice(1);
+                document.getElementById('currentPrice').textContent = market.price;
+                document.getElementById('minPrice').textContent = market.min_price;
+                document.getElementById('maxPrice').textContent = market.max_price;
+                document.getElementById('avgPrice').textContent = market.avg_price;
+                document.getElementById('mandiName').textContent = `Mandi: ${market.market}`;
+                document.getElementById('actionBadge').textContent = market.recommendation.action;
+                document.getElementById('recommendationText').textContent = market.recommendation.reason;
+
+                // Top markets
+                const list = document.getElementById('marketList');
+                list.innerHTML = '';
+                market.top_markets.forEach(m => {
+                    list.innerHTML += `
+                        <div class="mandi-item">
+                            <span class="mandi-item-name">${m.name}</span>
+                            <span class="mandi-item-price">₹${m.price}</span>
+                        </div>`;
+                });
+
+                // Chart
+                const ctx = document.getElementById('priceTrendChart');
+                if (priceChart) priceChart.destroy();
+
+                const basePrice = parseInt(market.price) || 2000;
+                const trendData = [basePrice - 200, basePrice - 100, basePrice + 50, basePrice - 50, basePrice + 100, basePrice + 150, basePrice];
+
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'],
+                        datasets: [{
+                            label: `${crop} Price (₹/quintal)`,
+                            data: trendData,
+                            borderColor: '#1F7A63',
+                            backgroundColor: 'rgba(31, 122, 99, 0.08)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2.5,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#1F7A63',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 1000 },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                            y: { grid: { color: '#DCE8E144' }, ticks: { font: { size: 11 } } }
+                        }
+                    }
+                });
+
+            } catch (err) {
+                alert('Market fetch failed: ' + err.message);
+            }
+        });
+
+        setTimeout(() => {
+            const nameEl = document.getElementById('farmer-name');
+            if (nameEl && nameEl.innerText && nameEl.innerText !== 'Loading...') {
+                document.getElementById('avatar-initial').innerText = nameEl.innerText.charAt(0).toUpperCase();
+            }
+        }, 500);
+    </script>
 </body>
 </html>

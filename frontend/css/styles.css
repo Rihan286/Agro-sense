@@ -1,20 +1,20 @@
-/* ===== CSS Variables ===== */
 :root {
-    --earth-deep: #2d3319;
-    --earth-rich: #4a5a2a;
-    --earth-warm: #7d8f3e;
-    --leaf-bright: #9db668;
-    --leaf-light: #c8d99f;
+    /* Map legacy names to new design tokens */
+    --earth-deep: var(--text-primary, #1E2A28);
+    --earth-rich: var(--secondary, #2E8B57);
+    --earth-warm: var(--primary, #1F7A63);
+    --leaf-bright: var(--accent, #5DBB63);
+    --leaf-light: var(--divider, #DCE8E1);
     --soil-brown: #6b4423;
     --sun-gold: #f4a261;
-    --alert-red: #e76f51;
+    --alert-red: #E63946;
     --alert-orange: #ff9f1c;
-    --success-green: #52b788;
-    --cream: #f9f7f3;
-    --white: #ffffff;
-    --shadow: rgba(45, 51, 25, 0.12);
-    --shadow-strong: rgba(45, 51, 25, 0.25);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --success-green: var(--primary, #1F7A63);
+    --cream: var(--background, #F5F7F6);
+    --white: var(--surface, #FFFFFF);
+    --shadow: rgba(30, 42, 40, 0.08);
+    --shadow-strong: rgba(30, 42, 40, 0.18);
+    --transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ===== Reset & Base ===== */

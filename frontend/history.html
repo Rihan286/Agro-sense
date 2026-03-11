@@ -3,133 +3,597 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSense - Detection History</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AgroSense — Detection History</title>
+    <meta name="description" content="View your past crop disease detection results, confidence levels, and diagnoses.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bitter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="css/global.css">
     <style>
-        /* Sidebar & Layout Styles */
-        body { font-family: 'Poppins', sans-serif; background-color: #ADFFC7; margin: 0; display: flex; overflow-x: hidden; }
-        
-        .sidebar { 
-            width: 250px; 
-            background: #1B4716; 
-            color: white; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            padding-top: 20px; 
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            transform: translateX(-250px);
+        body { display: flex; background: var(--background); }
+
+        .history-page { max-width: 1000px; margin: 0 auto; }
+
+        /* Filters */
+        .filters-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        .sidebar.active { transform: translateX(0); }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: bold; }
-        .sidebar ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .sidebar ul li:hover, .sidebar ul li.active { background: #00A30E; }
-        .sidebar ul li a { color: white; text-decoration: none; display: block; font-size: 16px; font-family: 'Poppins', sans-serif; }
-        
-        .main-content { 
-            margin-left: 0; 
-            padding: 30px; 
-            flex-grow: 1;
-            transition: margin-left 0.3s ease;
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px 14px;
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 140px;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-clear {
+            align-self: flex-end;
+            padding: 10px 16px;
+            background: var(--surface-alt);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-clear:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Stats Row */
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .history-stat {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .history-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+
+        .history-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Bitter', serif;
+        }
+
+        .history-stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .table-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .table-card-header h3 {
+            font-family: 'Bitter', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .record-count {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--surface-alt);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        #history-table {
             width: 100%;
-            box-sizing: border-box;
-            min-height: 100vh;
-        }
-        .main-content.expanded { margin-left: 250px; }
-
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #ddd; 
-            padding-bottom: 15px; 
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .hamburger { font-size: 24px; cursor: pointer; color: #1B4716; background: none; border: none; padding: 5px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
-        .hamburger:hover { color: #00A30E; }
-        .header h1 { color: #333; margin: 0; font-size: 24px; font-family: 'Poppins', sans-serif; }
-        .user-info { font-weight: 500; color: #555; font-family: 'Poppins', sans-serif; }
-
-        /* Feature specific wrapper */
-        .feature-wrapper {
-            max-width: 1000px;
-            margin: 0 auto;
+            border-collapse: collapse;
         }
 
-        .history-container { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: #1B4716; font-weight: 600; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        tr:hover { background-color: #ADFFC7; }
-        .confidence-high { color: #1B4716; font-weight: 600; }
-        .confidence-med { color: #ff9800; font-weight: 600; }
-        .confidence-low { color: #d32f2f; font-weight: 600; }
-        .loading { text-align: center; padding: 20px; color: #666; font-size: 1.1em; }
-        .error { color: #d32f2f; text-align: center; padding: 15px; background: #ffebee; border-radius: 8px; }
+        #history-table th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--divider);
+        }
+
+        #history-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(220, 232, 225, 0.5);
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        #history-table tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        #history-table tbody tr:hover {
+            background: var(--surface-alt);
+        }
+
+        #history-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.detected { background: rgba(230, 57, 70, 0.1); color: var(--alert-red); }
+        .status-badge.healthy { background: rgba(93, 187, 99, 0.1); color: var(--success-green); }
+        .status-badge.warning { background: rgba(255, 159, 28, 0.1); color: var(--alert-orange); }
+
+        .confidence-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-bar {
+            width: 60px;
+            height: 6px;
+            background: var(--divider);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .mini-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+
+        .mini-bar-fill.high { background: var(--success-green); }
+        .mini-bar-fill.medium { background: var(--alert-orange); }
+        .mini-bar-fill.low { background: var(--alert-red); }
+
+        /* Detail Modal */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .detail-modal.active { display: flex; }
+
+        .detail-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-elevated);
+            animation: scaleIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .detail-close {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .detail-close:hover { color: var(--alert-red); }
+
+        .detail-card h3 {
+            font-family: 'Bitter', serif;
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(220, 232, 225, 0.5);
+        }
+
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .detail-row-value { font-size: 14px; color: var(--text-primary); font-weight: 600; }
+
+        .loading-msg, .error-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .error-msg { color: var(--alert-red); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state p { color: var(--text-secondary); font-size: 14px; }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-250px); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 20px; }
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .user-info { align-self: flex-end; }
-            .history-container { padding: 15px; overflow-x: auto; }
+            .filters-bar { flex-direction: column; }
+            .filter-group { width: 100%; }
+            .filter-group select, .filter-group input { width: 100%; }
+            .history-stats { grid-template-columns: 1fr; }
+            #history-table { font-size: 13px; }
+            #history-table th, #history-table td { padding: 10px 12px; }
+            .mini-bar { display: none; }
         }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <div class="sidebar" id="sidebar">
-        <h2>AgroSense</h2>
+    <nav class="sidebar" id="sidebar" role="navigation">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i data-feather="leaf" fill="currentColor" stroke="none" width="20" height="20"></i></div>
+            <h2>AgroSense</h2>
+        </div>
         <ul>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="detect.html">Detect Disease</a></li>
-            <li><a href="weather.html">Weather</a></li>
-            <li><a href="market.html">Market Prices</a></li>
-            <li><a href="assistant.html">AI Assistant</a></li>
-            <li class="active"><a href="history.html">Detection History</a></li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
+            <li><a href="dashboard.html"><i data-feather="grid" width="20" height="20"></i> Dashboard</a></li>
+            <li><a href="detect.html"><i data-feather="camera" width="20" height="20"></i> Detect Disease</a></li>
+            <li><a href="weather.html"><i data-feather="cloud-rain" width="20" height="20"></i> Weather</a></li>
+            <li><a href="market.html"><i data-feather="trending-up" width="20" height="20"></i> Market Prices</a></li>
+            <li><a href="assistant.html"><i data-feather="message-square" width="20" height="20"></i> AI Assistant</a></li>
+            <li class="active"><a href="history.html" aria-current="page"><i data-feather="clock" width="20" height="20"></i> Detection History</a></li>
         </ul>
-    </div>
+        <div class="logout-container">
+            <ul><li><a href="#" id="logout-btn"><i data-feather="log-out" width="20" height="20"></i> Logout</a></li></ul>
+        </div>
+    </nav>
 
-    <div class="main-content" id="main-content">
+    <main class="main-content" id="main-content">
         <div class="header">
             <div class="header-left">
-                <button class="hamburger" id="hamburger-btn">
-                    &#9776;
-                </button>
+                <button class="hamburger" id="hamburger-btn"><i data-feather="menu"></i></button>
                 <h1>Detection History</h1>
             </div>
-            <div class="user-info">Welcome, <span id="farmer-name">Loading...</span></div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle"><i data-feather="moon" width="18" height="18" id="theme-icon"></i></button>
+                <div class="notification-wrapper">
+                    <button class="icon-btn notification-bell" id="notif-btn"><i data-feather="bell" width="18" height="18"></i><span class="notification-count" id="notif-count">3</span></button>
+                    <div class="notification-panel" id="notif-panel">
+                        <div class="notification-panel-header">Notifications <span id="mark-all-read">Mark all read</span></div>
+                        <div class="notification-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="avatar" id="avatar-initial">F</div>
+                    <div class="user-info-text">
+                        <span class="user-name" id="farmer-name">Loading...</span>
+                        <span class="user-role">Premium Farmer</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="feature-wrapper">
-            <div class="history-container">
-                <div id="status-message" class="loading">Loading history...</div>
+        <div class="history-page">
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Crop Type</span>
+                    <select id="filterCrop">
+                        <option value="">All Crops</option>
+                        <option value="chilli">Chilli</option>
+                        <option value="tomato">Tomato</option>
+                        <option value="potato">Potato</option>
+                        <option value="rice">Rice</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Date From</span>
+                    <input type="date" id="filterDateFrom">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Date To</span>
+                    <input type="date" id="filterDateTo">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Severity</span>
+                    <select id="filterSeverity">
+                        <option value="">All</option>
+                        <option value="high">High (>85%)</option>
+                        <option value="medium">Medium (60-85%)</option>
+                        <option value="low">Low (<60%)</option>
+                    </select>
+                </div>
+                <button class="filter-clear" id="clearFilters">Clear Filters</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="history-stats">
+                <div class="history-stat">
+                    <div class="history-stat-value" id="totalScans">0</div>
+                    <div class="history-stat-label">Total Scans</div>
+                </div>
+                <div class="history-stat">
+                    <div class="history-stat-value" id="diseasesFound">0</div>
+                    <div class="history-stat-label">Diseases Found</div>
+                </div>
+                <div class="history-stat">
+                    <div class="history-stat-value" id="avgConfidence">0%</div>
+                    <div class="history-stat-label">Avg Confidence</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h3>📋 Scan Records</h3>
+                    <span class="record-count" id="recordCount">0 records</span>
+                </div>
+
+                <div id="status-message" class="loading-msg">Loading history...</div>
+
                 <table id="history-table" style="display: none;">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
                             <th>Crop</th>
-                            <th>Predicted Disease</th>
+                            <th>Detected Disease</th>
                             <th>Confidence</th>
-                            <th>Image Reference</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="history-body">
-                        <!-- Data will be populated here -->
-                    </tbody>
+                    <tbody id="history-body"></tbody>
                 </table>
+
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>No Records Found</h3>
+                    <p>No detection history matches your filters. Try adjusting your criteria.</p>
+                </div>
             </div>
         </div>
-    </div>
 
+        <!-- Detail Modal -->
+        <div class="detail-modal" id="detailModal">
+            <div class="detail-card">
+                <button class="detail-close" id="closeModal">✕</button>
+                <h3 id="modalTitle">Detection Details</h3>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </main>
 
     <script src="js/main.js"></script>
+    <script>
+        feather.replace();
+
+        const API_BASE = 'http://localhost:5000/api';
+        const tok = localStorage.getItem('agrosense_token');
+        let allHistory = [];
+
+        async function fetchHistory() {
+            const statusMsg = document.getElementById('status-message');
+            const tbody = document.getElementById('history-body');
+            const table = document.getElementById('history-table');
+
+            try {
+                const response = await fetch(`${API_BASE}/disease/history`, {
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    allHistory = data.history || [];
+                    if (allHistory.length === 0) {
+                        statusMsg.style.display = 'none';
+                        document.getElementById('emptyState').style.display = 'block';
+                    } else {
+                        renderHistory(allHistory);
+                    }
+                } else {
+                    statusMsg.textContent = data.error || 'Failed to load history';
+                    statusMsg.className = 'error-msg';
+                }
+            } catch (err) {
+                statusMsg.textContent = 'Connection error. Please check your backend.';
+                statusMsg.className = 'error-msg';
+            }
+        }
+
+        function renderHistory(items) {
+            const statusMsg = document.getElementById('status-message');
+            const tbody = document.getElementById('history-body');
+            const table = document.getElementById('history-table');
+            const emptyState = document.getElementById('emptyState');
+
+            tbody.innerHTML = '';
+
+            if (items.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                statusMsg.style.display = 'none';
+            } else {
+                statusMsg.style.display = 'none';
+                emptyState.style.display = 'none';
+                table.style.display = 'table';
+            }
+
+            // Update stats
+            document.getElementById('totalScans').textContent = items.length;
+            const diseases = items.filter(i => !i.disease.toLowerCase().includes('healthy')).length;
+            document.getElementById('diseasesFound').textContent = diseases;
+            const avgConf = items.length > 0 ? Math.round(items.reduce((s, i) => s + i.confidence, 0) / items.length) : 0;
+            document.getElementById('avgConfidence').textContent = avgConf + '%';
+            document.getElementById('recordCount').textContent = items.length + ' records';
+
+            items.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                const dateStr = new Date(item.timestamp).toLocaleString();
+                const isHealthy = item.disease.toLowerCase().includes('healthy');
+
+                let confClass = 'high';
+                let statusClass = 'detected';
+                let statusText = 'Detected';
+
+                if (isHealthy) { statusClass = 'healthy'; statusText = 'Healthy'; }
+                if (item.confidence < 60) confClass = 'low';
+                else if (item.confidence < 85) confClass = 'medium';
+
+                tr.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td style="text-transform: capitalize;">${item.crop || 'Unknown'}</td>
+                    <td>${item.disease}</td>
+                    <td>
+                        <div class="confidence-cell">
+                            <div class="mini-bar"><div class="mini-bar-fill ${confClass}" style="width: ${item.confidence}%"></div></div>
+                            <span style="font-weight: 600;">${item.confidence}%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                `;
+
+                tr.addEventListener('click', () => showDetail(item));
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showDetail(item) {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('active');
+            document.getElementById('modalTitle').textContent = item.disease;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="detail-row"><span class="detail-row-label">Date</span><span class="detail-row-value">${new Date(item.timestamp).toLocaleString()}</span></div>
+                <div class="detail-row"><span class="detail-row-label">Crop</span><span class="detail-row-value" style="text-transform:capitalize;">${item.crop || 'Unknown'}</span></div>
+                <div class="detail-row"><span class="detail-row-label">Disease</span><span class="detail-row-value">${item.disease}</span></div>
+                <div class="detail-row"><span class="detail-row-label">Confidence</span><span class="detail-row-value" style="color: var(--primary);">${item.confidence}%</span></div>
+                <div class="detail-row"><span class="detail-row-label">Image</span><span class="detail-row-value">${item.image_path ? 'Uploaded' : 'N/A'}</span></div>
+            `;
+        }
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('detailModal').classList.remove('active');
+        });
+
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('detailModal')) {
+                document.getElementById('detailModal').classList.remove('active');
+            }
+        });
+
+        // Filters
+        function applyFilters() {
+            let filtered = [...allHistory];
+
+            const crop = document.getElementById('filterCrop').value;
+            if (crop) filtered = filtered.filter(i => (i.crop || '').toLowerCase().includes(crop));
+
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            if (dateFrom) filtered = filtered.filter(i => new Date(i.timestamp) >= new Date(dateFrom));
+
+            const dateTo = document.getElementById('filterDateTo').value;
+            if (dateTo) filtered = filtered.filter(i => new Date(i.timestamp) <= new Date(dateTo + 'T23:59:59'));
+
+            const severity = document.getElementById('filterSeverity').value;
+            if (severity === 'high') filtered = filtered.filter(i => i.confidence > 85);
+            else if (severity === 'medium') filtered = filtered.filter(i => i.confidence >= 60 && i.confidence <= 85);
+            else if (severity === 'low') filtered = filtered.filter(i => i.confidence < 60);
+
+            renderHistory(filtered);
+        }
+
+        document.getElementById('filterCrop').addEventListener('change', applyFilters);
+        document.getElementById('filterDateFrom').addEventListener('change', applyFilters);
+        document.getElementById('filterDateTo').addEventListener('change', applyFilters);
+        document.getElementById('filterSeverity').addEventListener('change', applyFilters);
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            document.getElementById('filterCrop').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            document.getElementById('filterSeverity').value = '';
+            renderHistory(allHistory);
+        });
+
+        fetchHistory();
+
+        setTimeout(() => {
+            const nameEl = document.getElementById('farmer-name');
+            if (nameEl && nameEl.innerText && nameEl.innerText !== 'Loading...') {
+                document.getElementById('avatar-initial').innerText = nameEl.innerText.charAt(0).toUpperCase();
+            }
+        }, 500);
+    </script>
 </body>
 </html>

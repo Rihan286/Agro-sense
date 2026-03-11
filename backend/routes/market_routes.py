@@ -73,8 +73,8 @@ def get_market_prices():
             search_record = {
                 "farmer_id": ObjectId(farmer_id),
                 "crop": crop,
-                "market": first["market"],
-                "price": first["modal_price"],
+                "market": market_data["market"],
+                "price": market_data["price"],
                 "timestamp": datetime.datetime.now()
             }
             market_search_history_collection.insert_one(search_record)
